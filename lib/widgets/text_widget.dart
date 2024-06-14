@@ -11,7 +11,9 @@ class TextWidget extends StatelessWidget {
     this.fontWeight,
     this.letterSpacing,
     this.textOverflow,
+    this.softWrap=false,
     this.textDecoration,
+     this.maxLines,
   });
 
   final String text;
@@ -22,13 +24,15 @@ class TextWidget extends StatelessWidget {
   final TextAlign? textAlign;
   final double? letterSpacing;
   final TextOverflow? textOverflow;
+  final bool softWrap;
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
       textAlign: textAlign,
-      overflow: textOverflow ?? TextOverflow.ellipsis, 
+      overflow: textOverflow ?? TextOverflow.ellipsis,
       style: TextStyle(
         decoration: textDecoration,
         fontSize: fontSize ?? 12.sp,
@@ -36,6 +40,7 @@ class TextWidget extends StatelessWidget {
         color: color ?? Colors.white,
         letterSpacing: letterSpacing,
       ),
+      softWrap: softWrap,
     );
   }
 }

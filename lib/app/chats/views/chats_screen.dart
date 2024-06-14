@@ -1,22 +1,24 @@
-import 'dart:developer';
-import 'package:baap_communication_app/app/chats/cubit/chats_cubit_cubit.dart';
-import 'package:baap_communication_app/app/chats/cubit/chats_cubit_state.dart';
+import 'package:baap_communication_app/app/chats/cubit/chats_cubit.dart';
+import 'package:baap_communication_app/app/chats/cubit/get_chat_cubit.dart';
+import 'package:baap_communication_app/app/chats/cubit/get_chat_state.dart';
+import 'package:baap_communication_app/app/message_list/cubit/latest_chat_cubit.dart';
 import 'package:baap_communication_app/constants/app_colors.dart';
 import 'package:baap_communication_app/constants/app_enum.dart';
 import 'package:baap_communication_app/constants/app_images.dart';
 import 'package:baap_communication_app/constants/app_strings.dart';
+import 'package:baap_communication_app/utils/preferences/local_preferences.dart';
+import 'package:baap_communication_app/utils/routes/routes.dart';
 import 'package:baap_communication_app/widgets/divider_widget.dart';
 import 'package:baap_communication_app/widgets/icon_widget.dart';
 import 'package:baap_communication_app/widgets/linear_gradient_widget.dart';
 import 'package:baap_communication_app/widgets/sized_box_widget.dart';
-import 'package:baap_communication_app/widgets/text_formfiled_widget.dart';
 import 'package:baap_communication_app/widgets/text_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-class MenuDetailScreen extends StatelessWidget {
+class MenuDetailScreen extends StatefulWidget {
   const MenuDetailScreen({
     super.key,
     this.servicerequestId,
@@ -24,6 +26,8 @@ class MenuDetailScreen extends StatelessWidget {
     this.dateTime,
     this.status,
     this.handledById,
+    this.groupId,
+    this.receiverId,
   });
 
   final int? servicerequestId;
@@ -31,36 +35,49 @@ class MenuDetailScreen extends StatelessWidget {
   final String? title;
   final String? dateTime;
   final String? status;
+  final int? groupId;
+  final int? receiverId;
+
+  @override
+  State<MenuDetailScreen> createState() => _MenuDetailScreenState();
+}
+
+final senderId = LocalStorageUtils.tokenResponseModel.userId;
+
+class _MenuDetailScreenState extends State<MenuDetailScreen> {
+  @override
+  void initState() {
+    context
+        .read<ChatsGetCubit>()
+        .getChats(receiverId: widget.receiverId, senderId: senderId);
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    log(servicerequestId.toString());
-
-    return BlocProvider(
-      create: (_) => MessageCubit(),
-      child: SafeArea(
-        child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          backgroundColor: AppColors.backgroundDark,
-          body: LinearGradientWidget(
-            child: Padding(
-              padding: EdgeInsets.all(20.w),
-              child: Column(
-                children: [
-                  _headerWidget(context),
-                  SizedBox(height: 10.h),
-                  const DividerWidget(
-                    height: 0.1,
-                    color: AppColors.dividerColor,
+    return SafeArea(
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: AppColors.backgroundDark,
+        body: LinearGradientWidget(
+          child: Padding(
+            padding: EdgeInsets.all(20.w),
+            child: Column(
+              children: [
+                _headerWidget(context),
+                SizedBoxWidget(height: 10.h),
+                const DividerWidget(
+                  height: 0.1,
+                  color: AppColors.dividerColor,
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: _contentWidget(),
                   ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: _contentWidget(),
-                    ),
-                  ),
-                  _communicationWidget(),
-                ],
-              ),
+                ),
+                _communicationWidget(),
+              ],
             ),
           ),
         ),
@@ -71,29 +88,75 @@ class MenuDetailScreen extends StatelessWidget {
   Widget _communicationWidget() {
     final _responseController = TextEditingController();
 
-    return BlocBuilder<MessageCubit, MessageState>(
+    return BlocBuilder<ChatsCubit, ChatsState>(
       builder: (context, state) {
-        return TextFormFieldWidget(
-          controller: _responseController,
-          textColor: Colors.white,
-          backgroundColor: AppColors.backgroundLinear.withOpacity(1),
-          hintText: AppString.enterPhoneNumber,
-          hintTextColor: AppColors.textGrey.withOpacity(0.6),
-          fontSize: 13.sp,
-          suffixIcon: IconWidget(
-            data: AppIcons.send.name,
-            height: 50,
-            width: 50,
-            onClick: state.isPostingResponse
-                ? null
-                : () {
+        return Padding(
+          padding: EdgeInsets.only(top: 8.0.w),
+          child: Row(
+            children: [
+              Expanded(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: 150.h,
+                  ),
+                  child: Scrollbar(
+                    child: TextFormField(
+                      controller: _responseController,
+                      minLines: 1,
+                      maxLines: 5,
+                      textInputAction: TextInputAction.newline,
+                      keyboardType: TextInputType.multiline,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: AppColors.whiteColor,
+                      ),
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 10.h,
+                          horizontal: 15.w,
+                        ),
+                        hintText: AppString.enterPhoneNumber,
+                        hintStyle: TextStyle(
+                          color: AppColors.textGrey.withOpacity(0.6),
+                          fontSize: 13.sp,
+                        ),
+                        filled: true,
+                        fillColor: AppColors.backgroundLinear.withOpacity(1),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBoxWidget(width: 8.w),
+              BlocListener<ChatsCubit, ChatsState>(
+                listener: (context, state) {
+                  if (state is ChatsLoaded) {
+                    context.read<ChatsGetCubit>().getChats(
+                        receiverId: widget.receiverId, senderId: senderId);
+                  }
+                },
+                child: IconWidget(
+                  data: AppIcons.send.name,
+                  height: 35.h,
+                  width: 35.w,
+                  onClick: () {
                     if (_responseController.text.trim().isNotEmpty) {
-                      context
-                          .read<MessageCubit>()
-                          .addMessage(_responseController.text.trim());
+                      context.read<ChatsCubit>().sendMessage(
+                            receiver: widget.title,
+                            message: _responseController.text,
+                            groupId: widget.groupId,
+                            receiverId: widget.receiverId,
+                          );
                       _responseController.clear();
                     }
                   },
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -105,8 +168,9 @@ class MenuDetailScreen extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            context.pop();
-          },
+            context.read<GetLatestMessageCubit>().getLatestMessage();
+             context.push(Routes.messageListScreen);
+           },
           child: IconWidget(
             data: AppIcons.backArrow.name,
             color: AppColors.whiteColor,
@@ -114,7 +178,7 @@ class MenuDetailScreen extends StatelessWidget {
             width: 50.w,
           ),
         ),
-        SizedBox(width: 10.w),
+        SizedBoxWidget(width: 5),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -129,10 +193,12 @@ class MenuDetailScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBoxWidget(
-                  width: 3.w,
+                  width: 8.w,
                 ),
                 TextWidget(
-                  text: (title ?? '').isEmpty ? AppString.userName : title!,
+                  text: (widget.title ?? '').isEmpty
+                      ? AppString.userName
+                      : widget.title ?? "",
                   fontSize: 19.sp,
                   color: AppColors.whiteColor,
                   textOverflow: TextOverflow.ellipsis,
@@ -146,72 +212,89 @@ class MenuDetailScreen extends StatelessWidget {
   }
 
   Widget _contentWidget() {
-    return BlocBuilder<MessageCubit, MessageState>(
+    return BlocBuilder<ChatsGetCubit, ChatGetState>(
       builder: (context, state) {
-        return state.messages.isNotEmpty
-            ? Padding(
-                padding: EdgeInsets.symmetric(vertical: 10.h),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 580.h,
-                      child: ListView.builder(
-                        itemCount: state.messages.length,
-                        itemBuilder: (context, index) {
-                          final message = state.messages[index];
-                          final isOutgoing = message['isOutgoing'];
+        if (state is ChatsGetLoaded) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 10.h),
+            child: Column(
+              children: [
+                Container(
+                  constraints: BoxConstraints(
+                    maxHeight: 580.h,
+                  ),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: state.chatGetModel?.data?.length ?? 0,
+                    itemBuilder: (context, index) {
+                      final message = state.chatGetModel?.data?[index];
+                      final isOutgoing = message?.senderId == senderId;
 
-                          return Align(
-                            alignment: isOutgoing
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Padding(
-                              padding: EdgeInsets.only(bottom: 10.h),
-                              child: Container(
-                                padding: EdgeInsets.all(10.r),
-                                decoration: BoxDecoration(
-                                  color: isOutgoing
-                                      ? AppColors.backgroundLinearColor
-                                      : AppColors.whiteColor,
-                                  borderRadius: BorderRadius.circular(10.r),
-                                ),
-                                child: TextWidget(
-                                  text: message['text'],
-                                  color: isOutgoing
-                                      ? AppColors.whiteColor
-                                      : AppColors.backgroundDark,
-                                  fontSize: 16.sp,
+                      return Align(
+                        alignment: isOutgoing
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: 10.h),
+                          child: IntrinsicWidth(
+                            child: Container(
+                              padding: EdgeInsets.all(10.w),
+                              decoration: BoxDecoration(
+                                color: isOutgoing
+                                    ? AppColors.backgroundLinearColor
+                                    : AppColors.backgroundLinear,
+                                borderRadius:
+                                    BorderRadius.circular(10.r).copyWith(
+                                  bottomRight: isOutgoing
+                                      ? Radius.zero
+                                      : Radius.circular(10.r),
+                                  bottomLeft: isOutgoing
+                                      ? Radius.circular(10.r)
+                                      : Radius.zero,
                                 ),
                               ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  TextWidget(
+                                    text: message?.message ?? "",
+                                    color: isOutgoing
+                                        ? AppColors.whiteColor
+                                        : AppColors.whiteColor,
+                                    fontSize: 16.sp,
+                                    softWrap: true,
+                                    maxLines: null,
+                                    textOverflow: TextOverflow.visible,
+                                  ),
+                                  SizedBoxWidget(height: 5.h),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      TextWidget(
+                                        text: message?.formattedDateTime ?? "",
+                                        color: AppColors.whiteColor
+                                            .withOpacity(0.6),
+                                        fontSize: 12.sp,
+                                        softWrap: true,
+                                        maxLines: null,
+                                        textOverflow: TextOverflow.visible,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              )
-            : Padding(
-                padding: const EdgeInsets.symmetric(vertical: 350),
-                child: Column(
-                  children: [
-                    IconWidget(
-                      data: AppIcons.message.name,
-                      color: AppColors.textGrey,
-                      height: 80,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(),
-                      child: TextWidget(
-                        text: AppString.noCommunication,
-                        color: AppColors.textGrey,
-                        fontSize: 16.sp,
-                      ),
-                    ),
-                  ],
-                ),
-              );
+              ],
+            ),
+          );
+        }
+        return SizedBoxWidget();
       },
     );
   }

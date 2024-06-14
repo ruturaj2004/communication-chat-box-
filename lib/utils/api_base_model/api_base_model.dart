@@ -3,6 +3,7 @@ class ApiBaseModel {
   String? commerceUrl;
   String? gatewayUrl;
   String? memberUrl;
+  String? peopleManagementUrl;
   String? academicUrl;
   String? imageUploadUrl;
   String? imageResizeUrl;
@@ -16,6 +17,7 @@ class ApiBaseModel {
     this.commerceUrl,
     this.gatewayUrl,
     this.memberUrl,
+    this.peopleManagementUrl,
     this.academicUrl,
     this.imageUploadUrl,
     this.imageResizeUrl,
@@ -30,6 +32,7 @@ class ApiBaseModel {
         commerceUrl: json["commerceUrl"],
         gatewayUrl: json["gatewayUrl"],
         memberUrl: json["memberUrl"],
+        peopleManagementUrl: json["peopleManagementUrl"],
         academicUrl: json["academicUrl"],
         imageUploadUrl: json["imageUploadUrl"],
         imageResizeUrl: json["imageResizeUrl"],

@@ -1,11 +1,13 @@
 import 'dart:developer';
 
+import 'package:baap_communication_app/constants/bloc_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:go_router/go_router.dart';
 
 import 'app_config.dart';
 import 'constants/api_end_points.dart';
@@ -18,16 +20,17 @@ void main({String? env}) async {
   await LocalStorageUtils.init();
   Bloc.observer = MyBlocObserver();
   usePathUrlStrategy();
+  GoRouter.optionURLReflectsImperativeAPIs = true;
   final appConfig = await AppConfig().formEnviroment(env);
   runApp(
-    MyApp(appConfig: appConfig),
 
-    //   MultiBlocProvider(
-    //   providers: blocProvider,
-    //   child: MyApp(
-    //     appConfig: appConfig,
-    //   ),
-    // )
+
+      MultiBlocProvider(
+      providers: blocProvider,
+      child: MyApp(
+        appConfig: appConfig,
+      ),
+    )
   );
 }
 

@@ -14,6 +14,22 @@ class LocalStorageUtils {
     await instance.setString("token", token);
   }
 
+  
+  static Future<void> saveGroupId(int groupId) async {
+    await instance.setInt("groupId", groupId);
+  }
+
+  static Future<int?> fetchGroupId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final groupId = prefs.getInt('groupId');
+    if (groupId == null) {
+      return 0;
+    }
+    return groupId;
+  }
+
+
+
   static Future<String?> fetchToken() async {
     final token = instance.getString('token') ?? '';
     if (token.isEmpty) {

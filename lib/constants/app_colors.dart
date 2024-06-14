@@ -11,5 +11,5 @@ class AppColors {
   static const Color dividerColor = Color.fromRGBO(232, 232, 232, 1);
   static const Color transparnt = Color.fromRGBO(232, 232, 232, 1);
   static const Color noCommunicationColor = Color.fromRGBO(227, 227, 227, 1);
-
+  static const Color redColor = Color.fromRGBO(244, 67, 54, 1);
 }

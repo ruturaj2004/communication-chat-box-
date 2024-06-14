@@ -5,8 +5,4 @@ class AppImages {
   static String send = 'assets/icons/send.svg';
   static String backArrow = 'assets/icons/backArrow.svg';
   static String search = 'assets/icons/search.svg';
-
-
-
-  
 }

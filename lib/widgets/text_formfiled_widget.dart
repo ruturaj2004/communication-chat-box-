@@ -33,14 +33,13 @@ class TextFormFieldWidget extends StatefulWidget {
     this.maxLine,
     this.onOutSideTap,
     this.onTap,
-    Null Function()? onEditingComplete, 
-    this. cursorColor, 
-   this.textcolor, 
-   
+    Null Function()? onEditingComplete,
+    this.cursorColor,
+    this.filled,
   });
   final String? cursorColor;
-  final String? textcolor;
 
+  final bool? filled;
 
   final String? initialValue;
   final String? hintText;
@@ -101,10 +100,11 @@ class _TextformFieldWidgetState extends State<TextFormFieldWidget> {
         decoration: InputDecoration(
           filled: widget.backgroundColor != null,
           fillColor: widget.backgroundColor,
-          contentPadding: EdgeInsets.symmetric(vertical: 11.h, horizontal: 10.h),
+          contentPadding:
+              EdgeInsets.symmetric(vertical: 11.h, horizontal: 10.h),
           hintText: widget.hintText,
           suffixIcon: widget.suffixIcon,
-          hintStyle: TextStyle( 
+          hintStyle: TextStyle(
             fontFamily: "GoogleSans",
             fontSize: widget.fontSize,
             fontWeight: widget.fontWeight,

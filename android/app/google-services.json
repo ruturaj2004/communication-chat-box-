@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "447653233384",
+    "project_id": "communication-chat-box",
+    "storage_bucket": "communication-chat-box.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447653233384:android:1db18a68f405c4c261bf5d",
+        "android_client_info": {
+          "package_name": "com.example.baap_communication_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbqUe2ZhKcDrKQTrwGJW5D5gEqGQ-F6ho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

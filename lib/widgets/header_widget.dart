@@ -1,5 +1,6 @@
-import 'package:baap_communication_app/constants/app_colors.dart';
+import 'package:baap_communication_app/constants/app_enum.dart';
 import 'package:baap_communication_app/constants/app_strings.dart';
+import 'package:baap_communication_app/widgets/icon_widget.dart';
 import 'package:baap_communication_app/widgets/sized_box_widget.dart';
 import 'package:baap_communication_app/widgets/text_widget.dart';
 import 'package:flutter/material.dart';
@@ -18,10 +19,10 @@ class HeaderWidget extends StatelessWidget {
             onTap: () {
               context.pop();
             },
-            child: Icon(
-              Icons.arrow_back,
-              color: AppColors.whiteColor,
-              size: 22.sp,
+            child: IconWidget(
+            data: AppIcons.backArrow.name,
+            height: 40.h,
+            width: 40.w,
             ),
           ),
           SizedBoxWidget(
